@@ -6,11 +6,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.raza.common.Constants.IngredientType;
 import com.raza.model.Ingredient;
+import com.raza.model.Taco;
+import com.raza.model.TacoOrder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/design")
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
+	@ModelAttribute
 	public void addIngredientsToModel(Model model) {
-		List<Ingredient> ingredients = Arrays.asList(
-				new Ingredient("FLTO", "Flour Tortilla", IngredientType.WRAP),
+		List<Ingredient> ingredients = Arrays.asList(new Ingredient("FLTO", "Flour Tortilla", IngredientType.WRAP),
 				new Ingredient("COTO", "Corn Tortilla", IngredientType.WRAP),
 				new Ingredient("GRBF", "Ground Beef", IngredientType.PROTEIN),
 				new Ingredient("CARN", "Carnitas", IngredientType.PROTEIN),
@@ -31,17 +35,28 @@ public class DesignTacoController {
 				new Ingredient("JACK", "Monterrey Jack", IngredientType.CHEESE),
 				new Ingredient("SLSA", "Salsa", IngredientType.SAUCE),
 				new Ingredient("SRCR", "Sour Cream", IngredientType.SAUCE));
-		
+
 		for (IngredientType type : IngredientType.values()) {
-			model.addAttribute(type.toString().toLowerCase(),
-			filterByIngredientType(ingredients, type));
+			model.addAttribute(type.toString().toLowerCase(), filterByIngredientType(ingredients, type));
 		}
 	}
 
+	@ModelAttribute(name = "tacoOrder")
+	public TacoOrder order() {
+		return new TacoOrder();
+	}
+
+	@ModelAttribute(name = "taco")
+	public Taco taco() {
+		return new Taco();
+	}
+
+	@GetMapping
+	public String showDesignForm() {
+		return "design";
+	}
+
 	private List<Ingredient> filterByIngredientType(List<Ingredient> ingredients, IngredientType type) {
-		return ingredients
-				.stream()
-				.filter(t -> type.equals(t.getType()))
-				.collect(Collectors.toList());
+		return ingredients.stream().filter(t -> type.equals(t.getType())).collect(Collectors.toList());
 	}
 }
